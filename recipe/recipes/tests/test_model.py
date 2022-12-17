@@ -28,3 +28,5 @@ class RecipeModelTest(TestCase):
             price=Decimal('5.50'),
             description='Sample recipe Description.'
         )
+
+        self.assertEqual(str(recipe), recipe.title)
