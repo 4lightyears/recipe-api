@@ -6,7 +6,7 @@ from django.urls import path
 
 from .views import CreateUserView, CreateTokenView, ManageUserView
 
-APP_NAME = 'user'
+app_name = 'user'
 
 urlpatterns = [
     path('create/', CreateUserView.as_view(), name='create'),
