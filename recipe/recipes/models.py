@@ -20,3 +20,9 @@ class Recipes(models.Model):
 
     def __str__(self):
         return str(self.title)
+
+    class Meta:
+        """Additional settings for model"""
+        db_table = 'recipes'
+        verbose_name = 'recipe'
+        verbose_name_plural = 'recipes'
