@@ -2,20 +2,27 @@
 Tests recipe apis.
 """
 
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from decimal import Decimal
 
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from ..models import Recipes
 
-from ..serializers import RecipesSerializer
+from ..serializers import RecipesSerializer, RecipeDetailSerializer
 
 
 RECIPES_URL = reverse('recipes:recipes-list')
+
+
+def recipe_detail_url(recipe_id):
+    """Create and return a unique recipe details url."""
+
+    return reverse('recipes:recipes-detail', args=[recipe_id])
 
 
 def create_recipe(user, **params):
@@ -90,3 +97,31 @@ class PrivateRecipeApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_get_recipe_detail(self):
+        """Tests GET request for a recipe details."""
+
+        recipe = create_recipe(user=self.user)
+        url = recipe_detail_url(recipe.id)
+        res = self.client.get(url)
+        serializer = RecipeDetailSerializer(recipe)
+
+        self.assertEqual(res.data, serializer.data)
+
+    def test_create_recipe(self):
+        """Test creating a recipe."""
+
+        payload = {
+            'title': 'Sample title',
+            'time_minutes': 3,
+            'price': Decimal(3)
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        recipe = Recipes.objects.get(id=res.data['id'])
+
+        for key, val in payload.items():
+            self.assertEqual(getattr(recipe, key), val)
+        self.assertEqual(recipe.user, self.user)
